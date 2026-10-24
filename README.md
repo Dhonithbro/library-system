@@ -212,9 +212,4 @@ In the web app: *Issue & return* → issue the same book twice to the same membe
 
 **Using SQL Server instead of MySQL?** This project targets MySQL. SQL Server needs `mssql` in place of `mysql2` and T-SQL syntax for the procedures – say so in your report only if your syllabus demands it.
 
-## 9. Likely viva questions
-- *Why is `Book_Author` needed?* Book–Author is M:N; a junction table keeps 1NF.
-- *Why a separate `Fine` table?* Not every issue has a fine; keeping it in `Issue` would create NULLs and a transitive dependency.
-- *What if two people issue the last copy together?* `FOR UPDATE` row lock + `CHECK (available_copies >= 0)`.
-- *Why views?* Reusable, simplified, read-only reports that hide joins.
-- *Primary vs foreign key?* PK uniquely identifies a row; FK references another table's PK to enforce referential integrity.
+
