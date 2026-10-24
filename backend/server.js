@@ -13,11 +13,11 @@ const wrap = fn => (req, res, next) => fn(req, res).catch(next);
 
 // ---------- generic CRUD for the simple lookup tables ----------
 const simple = {
-  departments: { table: 'department', pk: 'dept_id',      cols: ['dept_name'] },
-  categories:  { table: 'category',   pk: 'category_id',  cols: ['category_name'] },
-  publishers:  { table: 'publisher',  pk: 'publisher_id', cols: ['publisher_name', 'city'] },
-  authors:     { table: 'author',     pk: 'author_id',    cols: ['author_name', 'country'] },
-  librarians:  { table: 'librarian',  pk: 'librarian_id', cols: ['full_name', 'email'] }
+  departments: { table: 'department', pk: 'dept_id', cols: ['dept_name'] },
+  categories: { table: 'category', pk: 'category_id', cols: ['category_name'] },
+  publishers: { table: 'publisher', pk: 'publisher_id', cols: ['publisher_name', 'city'] },
+  authors: { table: 'author', pk: 'author_id', cols: ['author_name', 'country'] },
+  librarians: { table: 'librarian', pk: 'librarian_id', cols: ['full_name', 'email'] }
 };
 for (const [route, t] of Object.entries(simple)) {
   app.get(`/api/${route}`, wrap(async (q, r) => r.json((await pool.query(`SELECT * FROM ${t.table} ORDER BY ${t.pk}`))[0])));
@@ -201,10 +201,12 @@ app.get('/api/reports/:name', wrap(async (q, r) => {
 // ---------- error handling: turn SQL errors into friendly messages ----------
 app.use((err, req, res, next) => {
   console.error(err.code || '', err.message);
-  const map = { ER_DUP_ENTRY: [409, 'Duplicate value: that record already exists'],
+  const map = {
+    ER_DUP_ENTRY: [409, 'Duplicate value: that record already exists'],
     ER_ROW_IS_REFERENCED_2: [409, 'Cannot delete: other records depend on this one'],
     ER_NO_REFERENCED_ROW_2: [400, 'Invalid reference: selected item does not exist'],
-    ER_CHECK_CONSTRAINT_VIOLATED: [400, 'Value violates a table rule (e.g. copies cannot be negative)'] };
+    ER_CHECK_CONSTRAINT_VIOLATED: [400, 'Value violates a table rule (e.g. copies cannot be negative)']
+  };
   if (err.sqlState === '45000') return res.status(400).json({ error: err.sqlMessage });
   const [code, msg] = map[err.code] || [500, 'Server/database error: ' + (err.sqlMessage || err.message)];
   res.status(code).json({ error: msg });
